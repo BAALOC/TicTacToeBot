@@ -13,3 +13,4 @@ COMMANDS_DESCRIPTION = (
     ('start', 'запустить бота'),
     ('help', 'список команд')
 )
+GAMES_DICT = {}

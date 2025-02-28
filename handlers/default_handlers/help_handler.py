@@ -11,7 +11,6 @@ def help_handler(message: types.Message) -> None:
     try:
         logger.info(f'Пользователь {message.from_user.username}: /help')
 
-        
         commands_info = '\n'.join(f'/{command} - {info}' for command, info in COMMANDS_DESCRIPTION)
         message_text = f'📄 Доступные команды:\n{commands_info}'
         bot.send_message(message.chat.id, message_text)
