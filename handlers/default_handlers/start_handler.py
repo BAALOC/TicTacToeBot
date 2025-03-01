@@ -1,10 +1,12 @@
-from loader import bot
 from telebot import types
+
+from loader import bot
 from utils import logger
 from database import User
 from keyboards import get_main_menu
-from config import COMMANDS_DESCRIPTION 
+from config import COMMANDS_DESCRIPTION
 from handlers.game_handlers.join_game_handler import handle_join_game
+
 
 @bot.message_handler(commands=['start'])
 def start_handler(message: types.Message) -> None:
@@ -13,13 +15,15 @@ def start_handler(message: types.Message) -> None:
         username = message.from_user.username if message.from_user.username else f'user_{message.from_user.id}'
         
         _, created = User.get_or_create(
-                user_id=message.from_user.id,
-                defaults={'username': username}
-            )
+            user_id=message.from_user.id,
+            defaults={'username': username}
+        )
+        
         if created:
             logger.info(f'Новый пользователь: {username}')
-            
-        command_text = message.text.split()   
+        
+        command_text = message.text.split()
+        
         if len(command_text) > 1:
             handle_join_game(message, game_id=int(command_text[1]))
         else:

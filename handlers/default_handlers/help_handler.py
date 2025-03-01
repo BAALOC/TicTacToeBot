@@ -1,6 +1,6 @@
-from loader import bot
 from telebot import types
 
+from loader import bot
 from utils import logger
 from config import COMMANDS_DESCRIPTION
 

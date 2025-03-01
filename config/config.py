@@ -13,4 +13,6 @@ COMMANDS_DESCRIPTION = (
     ('start', 'запустить бота'),
     ('help', 'список команд')
 )
-GAMES_DICT = {}
+GAMES_DICT = {
+    # Словарь для хранения информации об играх
+}
