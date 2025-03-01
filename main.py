@@ -8,10 +8,13 @@ def main():
     """Основная функция запуска бота."""
     try:
         logger.info('Запуск программы')
+
         create_models()
         logger.info('Создание моделей')
+
         bot_setup_commands(bot)
         logger.info('Установка команд')
+        
         logger.info('Запуск бота')
         bot.infinity_polling()
 
