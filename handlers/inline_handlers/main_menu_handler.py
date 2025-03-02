@@ -1,16 +1,19 @@
 from telebot import types
 from loader import bot
 from utils import logger
-from config import GAMES_DICT
 from keyboards import get_game_choice_keyboard
+from config import GAMES_DICT
 import random
+from handlers.game_handlers.game_utils import create_game_board, send_game_message
 
 
-@bot.callback_query_handler(func=lambda call: call.data == 'start_game')
+@bot.callback_query_handler(func=lambda call: call.data in ['start_game'])
 def handle_main_menu(call: types.CallbackQuery) -> None:
     """Обрабатывает запрос на начало игры из главного меню."""
     try:
-        bot.send_message(call.from_user.id, 'Выбери режим игры 👇:', reply_markup=get_game_choice_keyboard())
+        if call.data == 'start_game':
+            bot.send_message(call.from_user.id, 'Выбери режим игры 👇:', reply_markup=get_game_choice_keyboard())
+
     except Exception as e:
         logger.error(f'Ошибка в handle_main_menu: {e}', exc_info=True)
         bot.answer_callback_query(call.id, 'Произошла ошибка при выполнении команды. Попробуй позже')
@@ -34,11 +37,10 @@ def handle_start_game(call: types.CallbackQuery) -> None:
         bot.send_message(call.from_user.id, message_text)
         
         size = int(game_mode.split("x")[0])
-        player1_id = call.from_user.id
         GAMES_DICT[game_id] = {
             'size': size,
             'player1': {
-                'id': player1_id,
+                'id': call.from_user.id,
                 'username': call.from_user.username,
                 'symbol': random.choice(['❌', '⭕']),
             },
@@ -54,9 +56,38 @@ def handle_start_game(call: types.CallbackQuery) -> None:
         bot.answer_callback_query(call.id, 'Произошла ошибка при выполнении команды. Попробуй позже')
 
 
-def create_game_board(size: int, game_id: int) -> list:
-    """Создает игровое поле."""
-    return [
-        [types.InlineKeyboardButton(text='⬜', callback_data=f'game#{game_id}#{x}#{y}') for y in range(size)]
-        for x in range(size)
-    ]
+@bot.callback_query_handler(func=lambda call: call.data == 'bot_start_game')
+def handle_bot_start_game(call: types.CallbackQuery) -> None:
+    try:
+        """Обрабатывает запрос на начало игры с ботом."""
+        bot.answer_callback_query(call.id, 'Запуск игры...')
+        bot.send_message(call.from_user.id, 'Игра с ботом началась!')
+
+        game_id = call.from_user.id
+        player_symbol = random.choice(['❌', '⭕'])
+        bot_symbol = '❌' if player_symbol == '⭕' else '⭕'
+        GAMES_DICT[game_id] = {
+            'size': 3,
+            'player1': {
+                'id': call.from_user.id,
+                'username': call.from_user.username,
+                'symbol': player_symbol,
+            },
+            'player2': {
+                'id': 'bot',
+                'username': 'Ботик',
+                'symbol': bot_symbol,
+            },
+            'board': create_game_board(3, game_id),
+            'current_turn': call.from_user.id
+        }
+
+        logger.info(f'Игра {game_id} создана. Размер: 3x3. Игрок 1: {call.from_user.username}, Игрок 2: Ботик')
+        send_game_message(game_id)
+
+    except KeyError:
+        logger.warning(f'Игра {game_id} не найдена')
+        bot.answer_callback_query(call.id, 'Игра не найдена')
+    except Exception as e:
+        logger.error(f'Ошибка в handle_bot_start_game: {e}', exc_info=True)
+        bot.answer_callback_query(call.id, 'Произошла ошибка при выполнении команды. Попробуй позже')
