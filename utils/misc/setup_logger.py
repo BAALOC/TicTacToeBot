@@ -1,5 +1,6 @@
 import logging
 
+# TODO: Добавить логирование в файл
 def bot_setup_logger(name: str, level: int = logging.INFO) -> logging.Logger:
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     

@@ -1,5 +1,4 @@
 from telebot import types
-
 from loader import bot
 from utils import logger
 from config import COMMANDS_DESCRIPTION
@@ -10,8 +9,10 @@ def help_handler(message: types.Message) -> None:
     """Обрабатывает команду /help."""
     try:
         logger.info(f'Пользователь {message.from_user.username}: /help')
+        
         commands_info = '\n'.join(f'/{command} - {info}' for command, info in COMMANDS_DESCRIPTION)
         message_text = f'📄 Доступные команды:\n{commands_info}'
+        
         bot.send_message(message.chat.id, message_text)
 
     except Exception as e:

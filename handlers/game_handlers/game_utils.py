@@ -76,6 +76,7 @@ def handle_game_result(game_id: int) -> None:
             bot.send_message(GAMES_DICT[game_id]['player1']['id'], message_text, reply_markup=get_main_menu())
         GAMES_DICT.pop(game_id) 
 
+
 def check_game_end(game_id: int) -> tuple[bool, str]:
     """Проверяет, закончена ли игра."""
     board = GAMES_DICT[game_id]['board']
@@ -111,19 +112,25 @@ def update_board(game_id: int, x: int, y: int, symbol: str) -> None:
 
 def validate_move(game_id: int, x: int, y: int, call: types.CallbackQuery) -> bool:
     """Проверяет, является ли ход допустимым."""
-    button_text = GAMES_DICT[game_id]['board'][x][y].text
-    current_turn = GAMES_DICT[game_id]['current_turn']
+    try:
+        button_text = GAMES_DICT[game_id]['board'][x][y].text
+        current_turn = GAMES_DICT[game_id]['current_turn']
 
-    if button_text != '⬜':
-        logger.warning(f'Клетка ({x}, {y}) уже занята в игре {game_id}')
-        bot.answer_callback_query(call.id, 'Клетка уже занята')
+        if button_text != '⬜':
+            logger.warning(f'Клетка ({x}, {y}) уже занята в игре {game_id}')
+            bot.answer_callback_query(call.id, 'Клетка уже занята')
+            return False
+
+        if current_turn != call.from_user.id:
+            logger.info(f'Игрок {call.from_user.username} попытался сделать ход не в свой ход в игре {game_id}')
+            bot.answer_callback_query(call.id, 'Сейчас не твой ход')
+            return False
+
+    except KeyError:
+        logger.warning(f'Игрок {call.from_user.username} пытался сделать ход в несуществующей игре: {game_id}')
+        bot.answer_callback_query(call.id, 'Игра не найдена')
         return False
-
-    if current_turn != call.from_user.id:
-        logger.info(f'Игрок {call.from_user.username} попытался сделать ход не в свой ход в игре {game_id}')
-        bot.answer_callback_query(call.id, 'Сейчас не твой ход')
-        return False
-
+    
     return True
 
 

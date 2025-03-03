@@ -3,7 +3,7 @@ import handlers  # noqa
 from database import create_models
 from loader import bot
 from utils import bot_setup_commands
-
+ 
 def main():
     """Основная функция запуска бота."""
     try:
@@ -16,7 +16,7 @@ def main():
         logger.info('Установка команд')
         
         logger.info('Запуск бота')
-        bot.infinity_polling()
+        bot.infinity_polling(timeout=30)
 
     except Exception as e:
         logger.error(f'Ошибка в main.py: {e}', exc_info=True)
